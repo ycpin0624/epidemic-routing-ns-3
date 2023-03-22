@@ -378,18 +378,18 @@ void ReceivePacket(Ptr<Socket> socket)
 int main(int argc, char *argv[])
 {
     std::string phyMode("DsssRate11Mbps");
-    double distance = 300;
-    interval = 1;
+    double distance = 150;
+    interval = 5;
 
-    double simulationTime = 150.00;
-    double sendUntil = 100.00;
+    double simulationTime = 200.00;
+    double sendUntil = 50.00;
     double warmingTime = 10.00;
-    uint32_t seed = 91;
+    uint32_t seed = 123;
 
     uint32_t numNodes = 150;
     uint32_t sendAfter = 1;
-    uint32_t sinkNode = 44;
-    uint32_t sourceNode = 45;
+    uint32_t sinkNode = 20;
+    uint32_t sourceNode = 21;
 
     uint32_t TTL = 10;
     uint32_t UID = 0;
@@ -443,14 +443,14 @@ int main(int argc, char *argv[])
 
     MobilityHelper mobility;
     mobility.SetPositionAllocator("ns3::RandomRectanglePositionAllocator",
-                                  "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=300.0]"),
+                                  "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=3000.0]"),
                                   "Y", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=1500.0]"));
 
     mobility.SetMobilityModel("ns3::SteadyStateRandomWaypointMobilityModel",
                               "MinSpeed", DoubleValue(5),
                               "MaxSpeed", DoubleValue(10),
                               "MinX", DoubleValue(0.0),
-                              "MaxX", DoubleValue(300.0),
+                              "MaxX", DoubleValue(3000.0),
                               "MinPause", DoubleValue(10),
                               "MaxPause", DoubleValue(20),
                               "MinY", DoubleValue(0.0),
@@ -477,11 +477,6 @@ int main(int argc, char *argv[])
         recvSinkArray[i]->SetRecvCallback(MakeCallback(&ReceivePacket));
     }
 
-    Ptr<Socket> source = Socket::CreateSocket(c.Get(sourceNode), tid);
-    InetSocketAddress remote = InetSocketAddress(Ipv4Address("255.255.255.255"), 80);
-    source->SetAllowBroadcast(true);
-    source->Connect(remote);
-
     Ipv4InterfaceAddress iaddrSender = c.Get(sourceNode)->GetObject<Ipv4>()->GetAddress(1, 0);
     Ipv4Address ipSender = iaddrSender.GetLocal();
 
@@ -496,8 +491,13 @@ int main(int argc, char *argv[])
         payload.setDestinationAddress(ipReceiver);
         Ptr<Packet> packet = payload.toPacket();
 
-        PacketLogData dataPacket = {false, 0.00, 0.00, 0};
+        PacketLogData dataPacket = {false, t, 0.00, 0};
         dataForPackets.push_back(dataPacket);
+
+        Ptr<Socket> source = Socket::CreateSocket(c.Get(sourceNode), tid);
+        InetSocketAddress remote = InetSocketAddress(Ipv4Address("255.255.255.255"), 80);
+        source->SetAllowBroadcast(true);
+        source->Connect(remote);
 
         Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable>();
         double randomPause = x->GetValue(0, 1);
