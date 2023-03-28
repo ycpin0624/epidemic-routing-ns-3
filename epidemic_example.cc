@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
 
     // The below set of helpers will help us to put together the wifi NICs we want
     WifiHelper wifi;
-    YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default();
+    YansWifiPhyHelper wifiPhy;
 
     // set it to zero; otherwise, gain will be added
     wifiPhy.Set("RxGain", DoubleValue(4));
